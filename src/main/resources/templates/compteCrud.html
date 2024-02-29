@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank Accounts</title>
+</head>
+<body>
+    <h1>List of Bank Accounts</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Account Number</th>
+                <th>Account Holder</th>
+                <th>Balance</th>
+                <!-- Add more headers if needed -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Iterate over the list of accounts -->
+            <tr th:each="compte : ${allCompte}">
+                <td th:text="${compte.numCompte}">Account Number</td>
+                <td th:text="${compte.type_compte}">Account Holder</td>
+                <td th:text="${compte.solde}">Balance</td>
+                <!-- Add more columns if needed -->
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

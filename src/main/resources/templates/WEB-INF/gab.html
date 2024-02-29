@@ -1,0 +1,219 @@
+ 
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script th:src="@{/web/js/ATM1.js}"></script>
+<!-- <link rel="stylesheet" href="/ATM1.css"> -->
+<style>
+	.clsstable {
+		margin: 20vh auto;
+		background-image: linear-gradient(45deg, #4CAF50, #2196F3);
+		border: thick solid #1e5799;
+		text-align: center;
+		font-size: x-large;
+	}
+	
+	.clssbutton {
+		width: 15vh;
+		cursor: pointer;
+		height: 10vh;
+		font-size: 0.8em;
+		font-weight: bold;
+		background-color: #4CAF50;
+		color: white;
+		border: none;
+		border-radius: 5px;
+	}
+	
+	.clssbutton:hover {
+		background-color: #45a049;
+	}
+	
+	.clssinput {
+		width: 50vh;
+		height: 10vh;
+		font-weight: bold;
+		font-size: 2em;
+		text-align: center;
+		border: thick solid #1e5799;
+		border-radius: 5px;
+	}
+	
+	#bal {
+		border: blue 30px groove;
+	}
+	
+	#end a {
+		color: black;
+		text-decoration: none;
+	}
+</style>
+</head>
+<body>
+
+	<input type="hidden" id="solde" th:value="${compte.getSolde()}">
+	<table class="clsstable" border="2px" width="800px" height="500px">
+		<tbody>
+			<tr>
+				<td><button class="clssbutton" onclick="withDrawMoney()">Retirer</button></td>
+				<td colspan="2" rowspan="2" id="bal">
+					<div>
+						<p id="userBalance">
+							Balance:<p th:text="${compte.getSolde()}"</p>
+						<p id="userDetails">Details:</p>
+					</div>
+				</td>
+
+				<td><button class="clssbutton" onclick="turnOn()">V�rifier le solde</button></td>
+			</tr>
+			<tr>
+
+				<!-- Button trigger modal -->
+
+				<td><button class="clssbutton" type="button"
+						data-toggle="modal" data-target="#exampleModal">Afficher Detaill</button></td>
+				<td><button class="clssbutton" onclick="cancel()">Anuller</button></td>
+			</tr>
+			<tr>
+				<form th:action="@{/atm/withdrow}"
+					onsubmit="return verify()" method="post">
+				<td></td>
+				<td colspan="2" rowspan="2">= <input class="clssinput"
+					placeholder="00,000:00" type="textarea" name="montant"
+					id="userInput">
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><input type="hidden" name="noCarte"
+					th:value="${carte.getPin()}"> <input type="hidden"
+					name="compteId" th:value="${compte.getId()}">
+					<button class="clssbutton" name="action" value="retraitFromCln"
+						type="submit">Enter</button>
+					</form></td>
+				<td>
+					<button class="clssbutton" id="end">
+						<a th:href="@{/atm/code}">End</a>
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Votre
+						Information</h5>
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<b>Nom Prenom: <span th:text="${user.getFirstName()}"></span> / <span th:text="${user.getLastName()}"></span></b><br>
+					<b>numero Telephone : <span th:text="${user.getPhone()}"></span></b><br> <b>Email
+						: <span th:text="${user.getEmail()}"></span></b> <br> <b>le pin du votre carte : <span th:text="${carte.getPin()}"></span></b>
+					<br> <b>Type du compte : <span th:text="${compte.getType_compte()}"></span></b><br>
+
+					<b>Date d'expiration du votre carte :<span th:text="${carte.getDateExpiration()}"></span>
+					</b><br> <b>Numreo du votre carte :<span th:text="${carte.getNumeroCarte()}"></span></b><br>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	var isBtnClicked=false;
+		var solde = document.getElementById('solde')
+		var disp = "Bienvenue, cliquez sur n'importe\n quel boutton pour commencer"
+		userInput = document.getElementById('userInput')
+
+		function turnOn() {
+			userBalance.innerText = solde.value
+			userDetails.innerText = disp
+			isBtnClicked=false 
+
+		}
+		function depositMoney() {
+			userDetails.innerText = "kindly enter amount to deposit"
+		}
+
+		function makeTransaction() {
+			if (userDetails.innerText == "kindly enter amount to deposit") {
+				solde.value = Number(userInput.value) + solde.value
+				userBalance.innerText = "your balance is" + solde.value
+				alert("Transaction Successful")
+				userDetails.innerText = disp
+			} else if (userDetails.innerText == "SVP, entrez le montant\n que vous souhaitez retirer.") {
+				solde.value = solde.value - Number(userInput.value)
+				userBalance.innerText = "Votre Solde Est: " + solde.value
+				alert("Transaction est un succès")
+				userDetails.innerText = disp
+			} else if (userDetails.innerText = "Enter Amount to Transfer") {
+				solde.value = solde.value - Number(userInput.value)
+				userBalance.innerText = "Votre Solde Est: " + solde.value
+				alert("Transaction est un succès")
+			} else if (userDetails.innerText = "Enter Amount ") {
+				solde.value = solde.value - Number(userInput.value)
+				userBalance.innerText = "Votre Solde Est: " + solde.value
+				alert("Transaction est un succès")
+			}
+
+			else {
+				alert("Select the right option")
+			}
+
+		}
+
+		function withDrawMoney() {
+			userDetails.innerText = "SVP, entrez le montant\n que vous souhaitez retirer."
+				isBtnClicked=true
+
+		}
+		function cancel() {
+			userInput.value = ""
+				isBtnClicked=false
+		}
+		function trans() {
+			// userDetails.innerText="Enter Amount to Transfer"
+
+		}
+		function air() {
+			userDetails.innerText = "Enter Amount  "
+		}
+		function verify() {
+			var inp = document.getElementById('userInput').value
+			var solde = document.getElementById('solde').value
+ 
+			if (inp == "" || inp > solde || inp ==0 ) {
+				alert("entrer le montent correct ou le montent peux pas etre vide ")
+				 cancel()
+				event.preventDefault();
+
+			} else {
+				isBtnClicked=false 
+			}
+		}
+	</script>
+
+</body>
+</html>

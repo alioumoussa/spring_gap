@@ -1,0 +1,128 @@
+ 
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index Page</title>
+
+    <!-- External CSS -->
+    <link th:rel="stylesheet" th:href="@{web/style.css}" />
+  </head>
+
+  <!-- Internal CSS -->
+  <style>
+    .card {
+      position: relative;
+      background: linear-gradient(
+        30deg,
+        rgb(237, 120, 3) 0%,
+        rgb(183, 60, 3) 100%
+      );
+      width: 600px;
+      height: 300px;
+      margin-top: 100px;
+      border-radius: 15px;
+      box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+      color: white;
+    }
+
+    .card .numberarea {
+        position: absolute;
+        top:100px;
+        right:100px; 
+        font-size: 20px;
+        font-family: 'Courier New', Courier, monospace;
+        word-spacing: 1px;
+    }
+
+    .card .namearea {
+        position:absolute;
+        font-size: 15px;
+        font-family: 'Courier New', Courier, monospace;
+        left: 80px;
+        top:100px
+    }
+
+    .card .expirydatearea {
+        font-family: 'Courier New', Courier, monospace;
+        position: absolute;
+        top:130px;
+        left:260px
+
+    }
+
+    .card .validthru {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+        top:235px;
+        right:420px;
+        font-size: 27px;
+        color:white;
+    }
+
+    .card .banklogo {
+        position: absolute;
+        top:10px;
+        left:20px;
+    }
+
+    .logodesign {
+        width: 100px;
+    }
+
+    .card .simslot {
+        position: absolute;
+        top:20px;
+        right:50px;
+    }
+  </style>
+
+  <!-- Inline CSS -->
+  <body onload="imprimer(); " style="background-color: rgb(249, 249, 249)">
+
+    <center>
+    
+					 
+      <div class="card">
+
+        <div class="numberarea">
+             CN: <span th:text="${carte.getNumeroCarte()}"></span> 
+        </div>
+
+        <div class="namearea">
+         Nom: <span th:text="${client.getFirstName()}"></span> /<br>
+          <span th:text="${client.getLastName()}"></span><br> 
+             
+        </div>
+        <div class="expirydatearea">
+        
+              <br><br>DE: <span th:text="${carte.getDateExpiration()}"></span><br><br><br> Pin: <span th:text="${carte.getPin()}"></span>  
+        </div>
+
+        <div class="validthru">
+          <p> 
+          Banque</p>
+        </div>
+
+
+        
+
+					 
+      </div>
+    </center>
+    <script>
+    function imprimer(){
+    	 window.print(); 
+    	    window.onafterprint = function(event) {
+    			 
+    			 document.location.href='../all' 	 
+    		 };
+    	    	    	
+    	 }
+
+    
+    </script>
+  </body>
+</html>

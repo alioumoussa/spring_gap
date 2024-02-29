@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Text Extraction</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+  <title>ATM Card Insert</title> 
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .atm-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 400px;
+        }
+
+        .atm-screen {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card-slot {
+            background-color: #eee;
+            border: 2px dashed #aaa;
+            height: 50px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-inserted {
+            border: 2px solid #4caf50;
+        }
+
+        #insert-card-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="atm-container">
+        <div class="atm-screen">
+            <h3>Bienvenue dans notre distributeur automatique de billets (ATM).</h3>
+          <h4>   Veuillez télécharger votre carte bancaire au format PDF ou entrez le code PIN manuellement <a th:href="@{/atm/code}" >ici</a></h4>
+
+            <input type="file" class="card-slot" id="fileInput" accept=".pdf" onchange="extractText()">
+            <div id="resultContainer"></div>
+                 <input type="hidden" id="found"  name="noCarte">
+                
+                 
+        </div>
+    </div>
+
+    <script>
+        function extractText() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const resultContainer = document.getElementById('resultContainer');
+    
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const arrayBuffer = e.target.result;
+    
+                    // Load PDF document
+                    pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(function (pdfDoc) {
+                        let occurrences = [];
+    
+                        // Define the regular expression pattern
+                        const regex = /Pin:([0-9]{4})/g;
+    
+                        // Iterate through each page
+                        for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
+                            pdfDoc.getPage(pageNumber).then(function (page) {
+                                // Extract text from the page
+                                page.getTextContent().then(function (textContent) {
+                                    const textItems = textContent.items;
+    
+                                    // Check each text item for the pattern
+                                    for (let i = 0; i < textItems.length; i++) {
+                                        const text = textItems[i].str;
+    
+                                        // Use regular expression to find the pattern
+                                        let match = regex.exec(text);
+                                        while (match !== null) {
+                                            occurrences.push({ page: pageNumber, pin: match[1] });
+                                            match = regex.exec(text);
+                                        }
+                                    }
+    
+                                    // Display results after processing the last page
+                                    if (pageNumber === pdfDoc.numPages) {
+                                        displayResults(occurrences);
+                                    }
+                                });
+                            });
+                        }
+                    });
+                };
+    
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('Please select a PDF file.');
+            }
+        }
+    
+        function displayResults(occurrences) {
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = '';
+    
+            if (occurrences.length > 0) {
+                for (let i = 0; i < occurrences.length; i++) {
+                    const result = document.createElement('p');
+                    result.textContent = `Pin found on page ${occurrences[i].page}: ${occurrences[i].pin}`;
+                    document.getElementById("found").value=`${occurrences[i].pin}`
+                         localStorage.setItem('pin', document.getElementById("found").value);
+                    resultContainer.appendChild(result);
+                        //document.location.href="code.jsp"
+                    document.location.href="cardServelet?action=pdfUpload&&noCarte="+document.getElementById("found").value
+                    localStorage.removeItem('pin');
+                }
+            } else {
+                resultContainer.textContent = 'Pin not found in the PDF.';
+            }
+        }
+       
+    </script>
+    </body>
+
+</html>

@@ -1,0 +1,81 @@
+ 
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+
+
+<head>
+    <title>Créer un Compte</title>
+    <!-- Ajoutez ici vos liens vers les fichiers CSS ou tout autre élément de style -->
+    <style>
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .compte-form-container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .compte-form-container h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            color: #333333;
+        }
+
+        .compte-form-container p {
+            color: #777777;
+        }
+
+        .compte-form-container input,
+        .compte-form-container select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .compte-form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #6c7a89;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .compte-form-container button:hover {
+            background-color: #5e6e7d;
+        }
+    </style>
+</head>
+<body>
+
+<form class="compte-form-container"   th:object="${compte}"  
+th:action="@{/compte/update}" method="POST">
+    <h1>Modifier un compte</h1> 
+    <input type="hidden" name="id" th:value="${compte.id}">
+    <select name="type_compte" required>
+        <option value="Epargne" th:selected="${compte.type_compte == 'Epargne'}">Compte d'Épargne</option>
+        <option value="Courant" th:selected="${compte.type_compte == 'Courant'}">Compte Courant</option>
+    </select>
+    <input type="text" name="numCompte" th:value="${compte.numCompte}" required>
+    <input type="text" name="solde" th:value="${compte.solde}" required>
+    <button type="submit">Mettre à jour</button>
+</form>
+
+</body>
+</html>

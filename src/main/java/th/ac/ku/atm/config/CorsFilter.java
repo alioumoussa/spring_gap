@@ -28,4 +28,5 @@ public class CorsFilter implements javax.servlet.Filter {
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {}
+
 }

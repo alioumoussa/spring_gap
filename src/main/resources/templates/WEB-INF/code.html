@@ -2,155 +2,130 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<meta charset="UTF-8" />
-<title>Code</title>
-<link th:rel="stylesheet" type="text/css" th:href="@{/web/styles/style.css}">
-<style>
-	#pdf {
-		float: left;
-		background: rgb(60, 218, 73);
-		color: #fff;
-		line-height: 36px;
-		text-align: center;
-		user-select: none;
-		transition: all 0.2s ease;
-		box-shadow: 0px 4px rgba(0, 0, 0, 0.2);
-		margin: 0 7px 11px 0;
-		cursor: pointer;
-		width: 120px;
-		height: 36px;
-		text-decoration: none; /* Pour enlever la d�coration du lien */
-	}
-	
-	#errorMessage {
-color: red;
-font-weight: bold;
-}
-</style>
+	<meta charset="UTF-8" />
+	<title>Code</title>
+	<link th:rel="stylesheet" type="text/css" th:href="@{/web/styles/style.css}">
+	<style>
+		#pdf {
+            float: left;
+            background: rgb(60, 218, 73);
+            color: #fff;
+            line-height: 36px;
+            text-align: center;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0px 4px rgba(0, 0, 0, 0.2);
+            margin: 0 7px 11px 0;
+            cursor: pointer;
+            width: 120px;
+            height: 36px;
+            text-decoration: none; /* Pour enlever la décoration du lien */
+        }
+
+        #errorMessage {
+            color: red;
+            font-weight: bold;
+        }
+
+        #gab-image {
+            display: block;
+            margin: auto; /* Pour centrer l'image horizontalement */
+            width: 100%; /* Ajustez la largeur selon vos besoins */
+            height: auto; /* Laissez la hauteur automatique pour conserver les proportions de l'image */
+            margin-bottom: 20px; /* Ajoute de l'espace en bas de l'image */
+        }
+	</style>
 </head>
- 
 
 <body onload="load()">
 
-	<script type="text/javascript">
-		/**
-		 * Created by chuandong on 15/11/27.
-		 */
+<script type="text/javascript">
+	function load() {
+        var pin = localStorage.getItem('pin');
+        if (pin != null && pin !== '') {
+            document.location.href = "cardServelet?action=pdfUpload&&noCarte=" + pin;
+            localStorage.removeItem('pin');
+        }
 
-		function load() {
-			var pin= localStorage.getItem('pin');
-			if(pin==null || pin==''){
-				
-			}else{
-			document.location.href="cardServelet?action=pdfUpload&&noCarte="+pin
-			localStorage.removeItem('pin');
-			}
-			
-			var btns = document.querySelectorAll('#calculator span');
-			var inputScreen = document.querySelector('#screen');
-			var inputForm = document.getElementById('input').value;
-			var btnValue;
-			for (var i = 0; i < btns.length; i++) {
+        var btns = document.querySelectorAll('#calculator span');
+        var inputScreen = document.querySelector('#screen');
+        var inputForm = document.getElementById('input').value;
+        var btnValue;
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener('click', function() {
+                btnValue = this.innerHTML;
+                switch (btnValue) {
+                    case 'Enter':
+                        console.log("login")
+                        break;
+                    case 'submit':
+                        break;
+                    case 'Sup':
+                        inputScreen.innerHTML = '';
+                        document.getElementById('input').value = '';
+                        break;
+                    default:
+                        if (/\d/.test(btnValue)) {
+                            inputForm += btnValue;
+                        }
+                        inputScreen.innerHTML += "*";
+                        document.getElementById('input').value += btnValue;
+                        break;
+                }
+            });
+        }
+    }
+</script>
 
-				btns[i].addEventListener('click', function() {
+<div id="calculator">
+	<div class="top">
+		<img id="gab-image" th:src="@{/web/images/GB3.jpg}" alt="Image GAB">
 
-					btnValue = this.innerHTML;
-
-					switch (btnValue) {
-					case 'Enter':
-						console.log("login")
-
-						break;
-					case 'submit':
-						break;
-					case 'Sup':
-						inputScreen.innerHTML = '';
-						document.getElementById('input').value = ''
-						break;
-
-					default:
-						if (/\d/.test(btnValue)) { // Check if it's a digit
-							inputForm += btnValue; // Only add to inputForm if digit
-						}
-						inputScreen.innerHTML += "*";
-						document.getElementById('input').value += btnValue
-						//alert(btnValue+inputForm)
-						break;
-					}
-				});
-			}
-		}
-	</script>
-	<div id="calculator">
-		<!-- Screen and clear key -->
-		<div class="top">
-			<!-- <input id="pin" type="text" placeholder="****" maxlength="4" required > -->
-			<%
-			if (error) {
-			%>
-			<script type="text/javascript">
-				alert(
-						"eroor tu as essyer<<< "
-								+
-			<%=count%>
-				+ " >>>essais  le nombre maximum d'essais de connexion autoris�s, qui est de 5 ")
-			</script>
-
-			<%
-			}
-			%>
-			<div style="color: white;">Enter your PIN and press ENTER to
-				continue</div>
-		 
-			<br>
-			<br>
-			<div id="screen"></div>
-			<div id="screen2"></div>
-			<div class="deidine"></div>
-
-		</div>
-		 
-
-		<form th:action="@{/atm/verify}" method="post" onsubmit="return verify()" >
-
-
-			<div th:if="${eroor=='true'}">
-				<p>le pin  incorect!</p>
-			</div>
-			<div class="keys">
-				<input id="input" type="hidden" name="noCarte"> <input
-					id="count" type="hidden" name="count" value="<%=count%>">
-				<!-- operators and other keys -->
-				<span>7</span> <span>8</span> <span>9</span> <span>4</span> <span>5</span>
-				<span>6</span> <span>1</span> <span>2</span> <span>3</span> <b
-					onclick="insert()"><input type="submit" name="action"
-					style="float: left; position: relative; top: 0; background: rgb(60, 218, 73); color: #fff; line-height: 36px; text-align: center; user-select: none; transition: all 0.2s ease; box-shadow: 0px 4px rgba(0, 0, 0, 0.2); margin: 0 7px 11px 0; cursor: pointer; width: 66px; height: 36px;"
-					id="enter" value="Enter"></b></a> <span>0</span> <span id="clear">Sup</span>
-
-					<a  th:href="@{/user/logout}">D�connexion</a>
-					<a  id="pdf" th:href="@{/atm}">PDF</a>
-			</div>
-		</form>
+		<div style="color: white;">Entre votre CODE PIN puis taper Entre pour continuer</div>
+		<br>
+		<br>
+		<div id="screen"></div>
+		<div id="screen2"></div>
+		<div class="deidine"></div>
 	</div>
- 
 
-	<script type="text/javascript">
+	<form th:action="@{/atm/verify}" method="post" onsubmit="return verify()">
+		<div th:if="${eroor=='true'}">
+			<p>le pin  incorect!</p>
+		</div>
+		<div class="keys">
+			<input id="input" type="hidden" name="noCarte">
+			<input id="count" type="hidden" name="count" value="<%=count%>">
+			<span>7</span>
+			<span>8</span>
+			<span>9</span>
+			<span>4</span>
+			<span>5</span>
+			<span>6</span>
+			<span>1</span>
+			<span>2</span>
+			<span>3</span>
+			<b onclick="insert()"><input type="submit" name="action" style="float: left; position: relative; top: 0; background: rgb(60, 218, 73); color: #fff; line-height: 36px; text-align: center; user-select: none; transition: all 0.2s ease; box-shadow: 0px 4px rgba(0, 0, 0, 0.2); margin: 0 7px 11px 0; cursor: pointer; width: 66px; height: 36px;" id="enter" value="Enter"></b>
+			<span>0</span>
+			<span id="clear">Sup</span>
+			<a th:href="@{/user/logout}" style="color: white;">Déconnexion</a>
+			<a id="pdf" th:href="@{/atm}" style="color: white;">PDF</a>
+		</div>
+	</form>
+</div>
 
-		function verify() {
-			var inp = document.getElementById('input').value
-		 
-			if (inp == "" ||  inp.length > 4 ||  inp.length < 4  ) {
-				alert("le champ doit pas etre vide ou superieur ou inferieur a 4 charactaire")
-				 
-				event.preventDefault();
+<script type="text/javascript">
+	function verify() {
+        var inp = document.getElementById('input').value;
+        if (inp === '' || inp.length > 4 || inp.length < 4) {
+            alert("le champ doit pas etre vide ou superieur ou inferieur a 4 charactaire");
+            event.preventDefault();
+        } else {
+            isBtnClicked = false;
+        }
+    }
+</script>
 
-			} else {
-				isBtnClicked=false 
-			}
-		}
-	</script>
-	
 </body>
 
 </html>
- 

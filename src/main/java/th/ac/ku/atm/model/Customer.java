@@ -1,5 +1,6 @@
 package th.ac.ku.atm.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -13,6 +14,7 @@ public class Customer {
     @Id
     private int id;
     private String name;
+    @Column(unique = true)
     private String pin;
 
     public Customer() {}

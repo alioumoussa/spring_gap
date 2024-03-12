@@ -83,9 +83,10 @@ return "redirect:../user/all";
 // @RequestMapping(value="/delete/{id}",  method = RequestMethod.DELETE,  headers = "Accept=application/json")
 
 public String delete(@PathVariable int id){
- User user= repository.getOne(id);
-repository.delete(user);
-return "redirect:../all";
+
+     User user= repository.getOne(id);
+    repository.delete(user);
+    return "redirect:../all";
 
 }
 

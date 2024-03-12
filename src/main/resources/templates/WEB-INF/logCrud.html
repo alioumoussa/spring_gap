@@ -1,22 +1,20 @@
 <!DOCTYPE html>
- <html xmlns:th="http://www.thymeleaf.org">
- 
+<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<title>Liste des Transactions</title>
-<div th:include="WEB-INF/nav"></div>
+	<title>Liste des Transactions</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
 
+<body>
 
-</section>
-<!-- SIDEBAR -->
+<header>
+	<div th:include="WEB-INF/nav"></div>
+</header>
 
-<!-- CONTENT -->
 <section id="content">
-	<!-- NAVBAR -->
-
 	<nav>
-
-	
-				<i class="bx bx-menu"></i>
+		<i class="bx bx-menu"></i>
 				<form action="@{/customers/chercher}" method="post">
 					<div class="form-input">
 						<input type="search"  placeholder="serch Numéro du customer" name="numcustomer">
@@ -25,12 +23,12 @@
 						</button>
 					</div>
 				</form>
-				
+
 				<input type="checkbox"  onclick="myFunction()" id="switch-mode" hidden> <label
 			for="switch-mode" class="switch-mode"></label> <a href="#"
 			class="notification"> <i class='bx bxs-bell'></i> <span
 			class="num">8</span>
-		</a> <a th:href="@{/user/profile}" class="profile"> 
+		</a> <a th:href="@{/user/profile}" class="profile">
 			<img th:src="@{/web/images/icons/compte.png}">
 		</a>
 	</nav>
@@ -38,7 +36,7 @@
 
 
 
-			
+
 			<div class="table-data">
 				<div class="order">
 					<div class="head">
@@ -50,6 +48,7 @@
 							<tr>
 								<th>logg id</th>
 								<th>information</th>
+								<th>email</th>
 							</tr>
 						</thead>
 						<tbody>

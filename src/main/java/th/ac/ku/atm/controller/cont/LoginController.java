@@ -1,5 +1,6 @@
 package th.ac.ku.atm.controller.cont;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +13,12 @@ import th.ac.ku.atm.service.CustomerService;
 
 @Controller
 @RequestMapping("/login")
+
 public class LoginController {
 
+    @Autowired
     private CustomerService customerService;
+    @Autowired
     private BankAccountService bankAccountService;
 
     public LoginController(CustomerService customerService, BankAccountService bankAccountService) {

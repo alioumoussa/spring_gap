@@ -27,7 +27,7 @@ public class CarteDao {
 	}
 
 	public Carte generateCarte(Compte compte) {
-		String numeroCarte = generateRandomNumber(16);
+		String numeroCarte = generateRandomNumber(7);
 
 		String codePin = generateRandomNumber(4);
 
@@ -69,6 +69,7 @@ public class CarteDao {
 			return cmpt;
 		} catch (Exception w) {
 
+			System.out.println("Error :"+w.getMessage());
 		}
 		return null;
 

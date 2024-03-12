@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.stereotype.Service;
 import th.ac.ku.atm.model.Transaction;
 import th.ac.ku.atm.model.User;
 import th.ac.ku.atm.repository.TransactionRepository;
@@ -14,12 +15,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
+@Service
 public class TransactionDao {
 
 	@Autowired
 	TransactionRepository repository;
  
 	public Transaction getById(int id) {
+
 		return repository.getOne(id);
 
 	}
@@ -28,8 +31,6 @@ public class TransactionDao {
 		UserDao user=new UserDao();
 
 		return user.getById(cpt.getId());
-		 
-		 
 
 	}
 
@@ -48,4 +49,5 @@ public class TransactionDao {
 		  repository.delete(entity);
 
 	}
+
 }

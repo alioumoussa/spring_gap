@@ -2,6 +2,7 @@ package th.ac.ku.atm.service;
  
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.stereotype.Service;
 import th.ac.ku.atm.model.Machine;
 import th.ac.ku.atm.model.User;
 import th.ac.ku.atm.repository.MachineRepository;
@@ -12,21 +13,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
+@Service
 public class MachineDao   {
  
 	@Autowired
 	MachineRepository repository;
 	
 	public Machine getById(int id) {
-		        return repository.getOne(id);
-
+		return repository.getOne(id);
 	}
 
-	 
-
 	public User getUserByMachine(Machine cpt) {
-	UserDao user=new UserDao();
-	return user.getById(cpt.getId());
+		UserDao user=new UserDao();
+		return user.getById(cpt.getId());
 
 	}
 	
@@ -38,10 +37,12 @@ public class MachineDao   {
  
 	public void save (Machine entity) {
 		 
-	repository.save(entity);
+		repository.save(entity);
+
 	}
  
 	public void delete(Machine entity) {
 		repository.delete(entity);
 }
+
 }

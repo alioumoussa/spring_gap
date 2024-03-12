@@ -11,6 +11,8 @@ import th.ac.ku.atm.model.Machine;
 import th.ac.ku.atm.model.User;
 import th.ac.ku.atm.repository.MachineRepository;
 import th.ac.ku.atm.repository.UserRepositoryModel;
+import th.ac.ku.atm.service.MachineDao;
+
 @Controller
 @RequestMapping("/machine")
 public class MachineController {
@@ -19,9 +21,11 @@ public class MachineController {
  
     @GetMapping("all")
     public String getBankAccountPage(Model model) {
-      List<Machine> all= repository.findAll();
+       List<Machine> all= repository.findAll();
         model.addAttribute("alllog",all);
         return "WEB-INF/logCrud";
     }
-   
+
+
+
 }

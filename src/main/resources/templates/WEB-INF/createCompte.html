@@ -63,7 +63,7 @@
 <form class="compte-form-container" th:action="@{/compte/create}" method="POST">
     <h1>Créer un Compte</h1>
     <label for="typeCompte">Type de Compte:</label>
-    <select name="type_compte" required>
+    <select name="type_compte" id="typeCompte" required>
         <option value="Epargne">Compte d'Épargne</option>
         <option value="Courant">Compte Courant</option>
     </select>

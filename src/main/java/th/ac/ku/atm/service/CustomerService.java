@@ -50,4 +50,5 @@ public class CustomerService {
         String salt = org.springframework.security.crypto.bcrypt.BCrypt.gensalt(12);
         return org.springframework.security.crypto.bcrypt.BCrypt.hashpw(pin, salt);
     }
+
 }

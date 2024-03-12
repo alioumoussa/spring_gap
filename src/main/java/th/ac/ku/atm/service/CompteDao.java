@@ -8,7 +8,6 @@ import th.ac.ku.atm.repository.CompteRepository;
 
 import java.util.List;
 @Service
-
 public class CompteDao {
 
     @Autowired  CompteRepository repository ;
@@ -21,6 +20,7 @@ public class CompteDao {
     }
 
     public List<Compte> getAll() {
+
         return repository.findAll();
 
     }

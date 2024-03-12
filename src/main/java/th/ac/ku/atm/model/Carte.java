@@ -26,7 +26,7 @@ public class Carte {
 
     @Column(name = "numero_carte")
     private String numeroCarte;
-    
+    @Column(unique = true)
     private String pin;
     
     @Column(name = "date_expiration")
@@ -38,6 +38,7 @@ public class Carte {
 
     // Constructeurs
     public Carte() {
+
     }
 
     public Carte(String numeroCarte, String pin, Date dateExpiration, Compte compte) {

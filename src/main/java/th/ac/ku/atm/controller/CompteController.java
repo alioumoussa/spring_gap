@@ -73,7 +73,7 @@ public class CompteController {
   @GetMapping("/edit/{id}")
   public String update(@PathVariable int id, Model model) {
     Compte cmpt=repository.getOne(id);
-    System.out.println("deidine"+cmpt.getNumCompte());
+    System.out.println("Votre numero de compte est :"+cmpt.getNumCompte());
     model.addAttribute("compte", cmpt);
     model.addAttribute("userId", id);
     return "WEB-INF/editCompte";
@@ -103,7 +103,7 @@ public class CompteController {
   }
   	public Carte generateCarte(Compte compte) {
       CarteDao dao=new CarteDao();
-      String numeroCarte = dao.generateRandomNumber(16);
+      String numeroCarte = dao.generateRandomNumber(7);
 
 		String codePin = dao.generateRandomNumber(4);
 

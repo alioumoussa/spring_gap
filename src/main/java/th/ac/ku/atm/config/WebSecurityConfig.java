@@ -27,7 +27,6 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
- 
   // @Autowired
 
   // private AuthenticationProvider authenticationProvider;

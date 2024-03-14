@@ -60,14 +60,14 @@ public class UserController {
     return "WEB-INF/profile";
   }
 
-  @GetMapping("/logout")
-  public String logout(Model model, HttpSession session) {
-     session.removeAttribute("user"); 
+    @GetMapping("/logout")
+    public String logout(Model model, HttpSession session) {
+        session.removeAttribute("user");
+        model.addAttribute("error", false);
+        return "redirect:/user/login2"; // Rediriger vers la page de connexion
+    }
 
-    return "WEB-INF/login";
-  }
-
-  @GetMapping("/create")
+    @GetMapping("/create")
 public String create(){
     return "WEB-INF/createUser";
 }

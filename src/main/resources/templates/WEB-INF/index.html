@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -69,88 +69,89 @@
         <img  th:src="@{/web/images/image_gab.jpeg}" alt="Image GAB" class="gab-image">
 
         <h3>Bienvenue dans notre distributeur automatique de billets (ATM).</h3>
-        <h4>Veuillez Inserer votre carte bancaire ou entrez le code PIN manuellement <a th:href="@{/atm/code}" >ici</a></h4>
+        <h4>Veuillez Inserer votre carte bancaire ou entrez le code PIN manuellement
+            <a th:href="@{/atm/code}" >ici</a></h4>
 
         <input type="file" class="card-slot" id="fileInput" accept=".pdf" onchange="extractText()">
         <div id="resultContainer"></div>
         <input type="hidden" id="found" name="noCarte">
-
 
     </div>
 </div>
 
 <script>
     function extractText() {
-        const fileInput = document.getElementById('fileInput');
-        const file = fileInput.files[0];
-        const resultContainer = document.getElementById('resultContainer');
+             const fileInput = document.getElementById('fileInput');
+             const file = fileInput.files[0];
+             const resultContainer = document.getElementById('resultContainer');
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const arrayBuffer = e.target.result;
+             if (file) {
+                 const reader = new FileReader();
+                 reader.onload = function (e) {
+                     const arrayBuffer = e.target.result;
 
-                // Load PDF document
-                pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(function (pdfDoc) {
-                    let occurrences = [];
+                     // Load PDF document
+                     pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(function (pdfDoc) {
+                         let occurrences = [];
 
-                    // Define the regular expression pattern
-                    const regex = /Pin:([0-9]{4})/g;
+                         // Define the regular expression pattern
+                         const regex = /Pin:([0-9]{4})/g;
 
-                    // Iterate through each page
-                    for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
-                        pdfDoc.getPage(pageNumber).then(function (page) {
-                            // Extract text from the page
-                            page.getTextContent().then(function (textContent) {
-                                const textItems = textContent.items;
+                         // Iterate through each page
+                         for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
+                             pdfDoc.getPage(pageNumber).then(function (page) {
+                                 // Extract text from the page
+                                 page.getTextContent().then(function (textContent) {
+                                     const textItems = textContent.items;
 
-                                // Check each text item for the pattern
-                                for (let i = 0; i < textItems.length; i++) {
-                                    const text = textItems[i].str;
+                                     // Check each text item for the pattern
+                                     for (let i = 0; i < textItems.length; i++) {
+                                         const text = textItems[i].str;
 
-                                    // Use regular expression to find the pattern
-                                    let match = regex.exec(text);
-                                    while (match !== null) {
-                                        occurrences.push({ page: pageNumber, pin: match[1] });
-                                        match = regex.exec(text);
-                                    }
-                                }
+                                         // Use regular expression to find the pattern
+                                         let match = regex.exec(text);
+                                         while (match !== null) {
+                                             occurrences.push({ page: pageNumber, pin: match[1] });
+                                             match = regex.exec(text);
+                                         }
+                                     }
 
-                                // Display results after processing the last page
-                                if (pageNumber === pdfDoc.numPages) {
-                                    displayResults(occurrences);
-                                }
-                            });
-                        });
-                    }
-                });
-            };
+                                     // Display results after processing the last page
+                                     if (pageNumber === pdfDoc.numPages) {
+                                         displayResults(occurrences);
+                                     }
+                                 });
+                             });
+                         }
+                     });
+                 };
 
-            reader.readAsArrayBuffer(file);
-        } else {
-            alert('Please select a PDF file.');
-        }
-    }
+                 reader.readAsArrayBuffer(file);
+             } else {
+                 alert('Please select a PDF file.');
+             }
+         }
 
-    function displayResults(occurrences) {
-        const resultContainer = document.getElementById('resultContainer');
-        resultContainer.innerHTML = '';
+         function displayResults(occurrences) {
+             const resultContainer = document.getElementById('resultContainer');
+             resultContainer.innerHTML = '';
 
-        if (occurrences.length > 0) {
-            for (let i = 0; i < occurrences.length; i++) {
-                const result = document.createElement('p');
-                result.textContent = `Pin found on page ${occurrences[i].page}: ${occurrences[i].pin}`;
-                document.getElementById("found").value = `${occurrences[i].pin}`
-                localStorage.setItem('pin', document.getElementById("found").value);
-                resultContainer.appendChild(result);
-                //document.location.href="code.jsp"
-                document.location.href = "cardServelet?action=pdfUpload&&noCarte=" + document.getElementById("found").value
-                localStorage.removeItem('pin');
-            }
-        } else {
-            resultContainer.textContent = 'Pin not found in the PDF.';
-        }
-    }
+             if (occurrences.length > 0) {
+                 for (let i = 0; i < occurrences.length; i++) {
+                     const result = document.createElement('p');
+                     result.textContent = `Pin found on page ${occurrences[i].page}: ${occurrences[i].pin}`;
+                     document.getElementById("found").value=`${occurrences[i].pin}`
+                          localStorage.setItem('pin', document.getElementById("found").value);
+                     resultContainer.appendChild(result);
+                         //document.location.href="code.jsp"
+                     document.location.href="cardServelet?action=pdfUpload&&noCarte="+document.getElementById("found").value
+                     localStorage.removeItem('pin');
+                 }
+             } else {
+                 resultContainer.textContent = 'Pin not found in the PDF.';
+             }
+         }
+
 </script>
 </body>
 

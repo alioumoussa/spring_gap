@@ -1,5 +1,7 @@
 package th.ac.ku.atm.controller;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class GabController {
     @Autowired
     CompteRepository comteRepo;
 
+    private int remainingAttempts = 3;
+
     @GetMapping("code")
     public String getCode() {
 
@@ -41,20 +45,35 @@ public class GabController {
     String verify(String noCarte, Model model) {
         Carte crt = repository.getCartByPin(Integer.parseInt(noCarte));
         if (crt != null) {
+            // Si le code PIN est correct, réinitialise le nombre d'essais restants
+            remainingAttempts = 3;
             Compte cmpt = crt.getCompte();
             User user = cmpt.getUser();
             model.addAttribute("carte", crt);
             model.addAttribute("user", user);
             model.addAttribute("compte", cmpt);
-            return "WEB-INF/gab";
+            return "WEB-INF/gab"; // Remplacez avec la page appropriée
         } else {
+            // Si le code PIN est incorrect, décrémente le nombre d'essais restants
+            remainingAttempts--;
             model.addAttribute("error", true);
+            model.addAttribute("remainingAttempts", remainingAttempts);
             return "WEB-INF/code";
         }
     }
 
     @PostMapping("withdrow")
     String withdrow(String compteId, String montant, String noCarte, Model model) {
+
+        // Récupérer la date actuelle
+        Date date = new Date();
+
+        // Récupérer le timestamp actuel
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        // Ajouter la date et le timestamp au modèle
+        model.addAttribute("date", date);
+        model.addAttribute("timestamp", timestamp);
 
         Compte cmpt = comteRepo.getById(Integer.parseInt(compteId));
 
@@ -69,9 +88,12 @@ public class GabController {
                         comteRepo.save(cmpt);
                         Carte crt = repository.getCartByPin(Integer.parseInt(noCarte));
 
+                        model.addAttribute("montant", montant2);
+
                         model.addAttribute("carte", crt);
                         model.addAttribute("user", cmpt.getUser());
                         model.addAttribute("compte", cmpt);
+                        return "WEB-INF/tiket"; // Rediriger vers la page ticket.html après le retrait
                     }
                     return "WEB-INF/gab";
                 } else {

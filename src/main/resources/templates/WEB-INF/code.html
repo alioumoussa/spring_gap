@@ -6,10 +6,32 @@
 	<title>Code</title>
 	<link th:rel="stylesheet" type="text/css" th:href="@{/web/styles/style.css}">
 	<style>
-		#pdf {
-            float: left;
-            background: rgb(60, 218, 73);
-            color: #fff;
+		/* Définissez une classe ou un identifiant pour le conteneur du calculateur */
+        #calculator-container {
+            width: 100%; /* Calculateur prend toute la largeur de la fenêtre */
+            margin: auto; /* Pour centrer le calculateur horizontalement */
+        }
+
+        /* Ajustez la largeur de l'image GAB en fonction de la largeur du conteneur du calculateur */
+        #gab-image {
+            display: block;
+            margin: auto; /* Pour centrer l'image horizontalement */
+            width: 100%; /* La largeur de l'image sera égale à celle du conteneur */
+            height: auto; /* Laissez la hauteur automatique pour conserver les proportions de l'image */
+            margin-bottom: 20px; /* Ajoute de l'espace en bas de l'image */
+        }
+
+        /* Ajustez également la largeur du conteneur du calculateur pour qu'il prenne toute la largeur */
+        #calculator {
+            width: 30%; /* Le calculateur prend toute la largeur du conteneur */
+            background-color: black; /* Changer la couleur de fond en noir */
+            color: white; /* Changer la couleur du texte en blanc */
+        }
+
+        /* Style pour les boutons PDF et Déconnexion */
+        .button {
+            background-color: grey;
+            color: white;
             line-height: 36px;
             text-align: center;
             user-select: none;
@@ -20,27 +42,75 @@
             width: 120px;
             height: 36px;
             text-decoration: none; /* Pour enlever la décoration du lien */
+            display: inline-block; /* Afficher les boutons en ligne */
+            text-decoration: none; /* Pour enlever la décoration du lien */
+            border: none; /* Supprimer la bordure */
+            border-radius: 5px; /* Ajouter un arrondi */
         }
 
-        #errorMessage {
-            color: red;
-            font-weight: bold;
-        }
 
-        #gab-image {
-            display: block;
-            margin: auto; /* Pour centrer l'image horizontalement */
-            width: 100%; /* Ajustez la largeur selon vos besoins */
-            height: auto; /* Laissez la hauteur automatique pour conserver les proportions de l'image */
-            margin-bottom: 20px; /* Ajoute de l'espace en bas de l'image */
-        }
-	</style>
+    </style>
 </head>
 
 <body onload="load()">
+<!-- Utilisez une div pour contenir le calculateur -->
+<div id="calculator-container">
+	<div id="calculator" class="top">
+		<img id="gab-image" th:src="@{/web/images/GB3.jpg}" alt="Image GAB">
+
+
+		<!-- Ajoutez ceci à l'endroit où vous voulez afficher le message d'erreur -->
+		<div th:if="${error}" class="error-message" style="color: red;">
+			<p>Code PIN incorrect. Veuillez réessayer. Nombre d'essais restants :
+				<span th:text="${remainingAttempts}"></span></p>
+		</div>
+
+		<div style="color: white;">Entre votre CODE PIN puis taper Entre pour continuer</div>
+		<br>
+		<br>
+		<div id="screen"></div>
+		<div id="screen2"></div>
+		<div class="deidine"></div>
+
+		<form th:action="@{/atm/verify}" method="post" onsubmit="return verify()">
+			<div th:if="${error}">
+
+			</div>
+			<div class="keys">
+				<input id="input" type="hidden" name="noCarte" maxlength="4">
+				<input id="count" type="hidden" name="count" value="<%=count%>">
+				<span>7</span>
+				<span>8</span>
+				<span>9</span>
+				<span>4</span>
+				<span>5</span>
+				<span>6</span>
+				<span>1</span>
+				<span>2</span>
+				<span>3</span>
+				<b onclick="insert()"><input type="submit" name="action" style="float: left; position: relative; top: 0; background: rgb(60, 218, 73); color: #fff; line-height: 36px; text-align: center; user-select: none; transition: all 0.2s ease; box-shadow: 0px 4px rgba(0, 0, 0, 0.2); margin: 0 7px 11px 0; cursor: pointer; width: 66px; height: 36px;" id="enter" value="Enter"></b>
+				<span>0</span>
+				<span id="clear">Sup</span>
+
+                <a class="button" href="/atm">Retour ATM</a>
+
+                <!-- Bouton PDF -->
+                <button class="button" onclick="verifyPdf()">PDF</button>
+
+
+
+                <!-- Bouton Déconnexion -->
+				<button class="button" onclick="window.location.href='/user/logout'">Déconnexion</button>
+			</div>
+		</form>
+	</div>
+</div>
+
 
 <script type="text/javascript">
-	function load() {
+
+
+    function load() {
         var pin = localStorage.getItem('pin');
         if (pin != null && pin !== '') {
             document.location.href = "cardServelet?action=pdfUpload&&noCarte=" + pin;
@@ -75,56 +145,38 @@
             });
         }
     }
-</script>
 
-<div id="calculator">
-	<div class="top">
-		<img id="gab-image" th:src="@{/web/images/GB3.jpg}" alt="Image GAB">
+   function verify() {
+    var inp = document.getElementById('input').value;
 
-		<div style="color: white;">Entre votre CODE PIN puis taper Entre pour continuer</div>
-		<br>
-		<br>
-		<div id="screen"></div>
-		<div id="screen2"></div>
-		<div class="deidine"></div>
-	</div>
+    if (inp == "" || inp.length > 4 || inp.length < 4) {
+        alert("Le champ ne doit pas être vide ou avoir plus de 4 caractères.");
 
-	<form th:action="@{/atm/verify}" method="post" onsubmit="return verify()">
-		<div th:if="${eroor=='true'}">
-			<p>le pin  incorect!</p>
-		</div>
-		<div class="keys">
-			<input id="input" type="hidden" name="noCarte">
-			<input id="count" type="hidden" name="count" value="<%=count%>">
-			<span>7</span>
-			<span>8</span>
-			<span>9</span>
-			<span>4</span>
-			<span>5</span>
-			<span>6</span>
-			<span>1</span>
-			<span>2</span>
-			<span>3</span>
-			<b onclick="insert()"><input type="submit" name="action" style="float: left; position: relative; top: 0; background: rgb(60, 218, 73); color: #fff; line-height: 36px; text-align: center; user-select: none; transition: all 0.2s ease; box-shadow: 0px 4px rgba(0, 0, 0, 0.2); margin: 0 7px 11px 0; cursor: pointer; width: 66px; height: 36px;" id="enter" value="Enter"></b>
-			<span>0</span>
-			<span id="clear">Sup</span>
-			<a th:href="@{/user/logout}" style="color: white;">Déconnexion</a>
-			<a id="pdf" th:href="@{/atm}" style="color: white;">PDF</a>
-		</div>
-	</form>
-</div>
+        event.preventDefault();
+    } else {
+        isBtnClicked = false;
 
-<script type="text/javascript">
-	function verify() {
-        var inp = document.getElementById('input').value;
-        if (inp === '' || inp.length > 4 || inp.length < 4) {
-            alert("le champ doit pas etre vide ou superieur ou inferieur a 4 charactaire");
-            event.preventDefault();
-        } else {
-            isBtnClicked = false;
-        }
+        // Supprimer l'erreur du modèle
+        document.querySelector('.error-message').style.display = 'none';
     }
+}
+
+      function verifyPdf() {
+            var inp = document.getElementById('input').value;
+
+            if (inp == "" || inp.length > 4 || inp.length < 4) {
+                // Rediriger vers le PDF
+                window.location.href = "/atm";
+            } else {
+
+                 event.preventDefault(); // Empêche le comportement par défaut du clic sur le bouton
+                return false; // Arrête l'exécution de la fonction
+            }
+        }
+
+
 </script>
+
 
 </body>
 

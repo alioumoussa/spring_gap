@@ -5,8 +5,8 @@
 
 <div layout:fragment="content" class="container">
   <h1>Login</h1>
+  <form action="#" th:action="@{/user/login2}" method="POST">
 
-  <form action="#" th:action="@{/login}" method="POST">
     <div class="form-group">
       <label for="inputId">Id</label>
       <input type="input" class="form-control" name="id" id="inputId">

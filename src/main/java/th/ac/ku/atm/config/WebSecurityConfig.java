@@ -46,7 +46,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // .antMatchers("/user/**").permitAll()//
         // .antMatchers("/user/all").permitAll()//
         // .antMatchers("/user/**").permitAll()//
-        .antMatchers(HttpMethod.POST, "/**/department/**").hasRole("CLIENT")
         .antMatchers("/h2-console/**/**").permitAll()
         .and()
         .cors()
@@ -81,15 +80,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/webjars/**")//
         .antMatchers("/public")
         .antMatchers("templates/WEB-INF/") 
-        .antMatchers("/api/department/**")
-        .antMatchers("/api/equipement/**")
-          .antMatchers("/api/personnelle/**")
 
- .antMatchers("/api/entite/**")
+ .antMatchers("/api/model/**")
 
-
-        .antMatchers("/api/etage/**")
-        .antMatchers("/api/buro/**")
         // Un-secure H2 Database (for testing purposes, H2 console shouldn't be
         // unprotected in production)
         .and()

@@ -45,14 +45,15 @@
     </div>
 </main>
 <script>
-    function imprimer() {
-        setTimeout(() => {
-            window.print();
-        }, 4000);
-        window.onafterprint = function(event) {
-            document.location.href = 'code';
-        };
-    }
+
+       function imprimer() {
+           setTimeout(() => {
+               window.print();
+           }, 4000); // Imprime le ticket après 4 secondes (4000 ms)
+       }
+
+       // Appeler la fonction d'impression lorsque la page est chargée
+       window.onload = imprimer;
 </script>
 </body>
 </html>

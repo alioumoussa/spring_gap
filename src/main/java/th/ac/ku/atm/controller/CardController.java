@@ -7,44 +7,33 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import th.ac.ku.atm.model.Carte;
-import th.ac.ku.atm.model.Compte;
-import th.ac.ku.atm.model.User;
 import th.ac.ku.atm.service.CarteDao;
 
 @Controller
 public class CardController {
 
+    @Autowired
+    private CarteDao carteDao;
 
-        @Autowired
-        private CarteDao carteDao;
+    @GetMapping("/cardUpload")
+    public String handlePdfUpload(@RequestParam("noCarte") String noCarte) {
+        // Effectuer les actions nécessaires avec le numéro de carte
+        // Par exemple, rediriger vers une autre page ou effectuer un traitement spécifique
 
-        @GetMapping("/card/upload")
-        public String uploadCardForm() {
-            return "code"; // retourne la vue "code.html" pour insérer le code PIN
-        }
-
-    @PostMapping("/card/validate")
-    public String validatePin(@RequestParam("noCarte") String pinString, Model model) {
-        // Convertir la chaîne de caractères en entier
-        int pin = Integer.parseInt(pinString);
-        Carte carte = carteDao.getCarteByPin(pin);
-        if (carte != null) {
-            Compte compte = carte.getCompte();
-            User user = compte.getUser();
-
-            model.addAttribute("carte", carte);
-            model.addAttribute("client", user);
-            model.addAttribute("compte", compte);
-
-            // Effectuer d'autres traitements nécessaires
-            return "index"; // Redirige vers la vue "index.html"
-        } else {
-            model.addAttribute("error", true);
-            return "code"; // Redirige vers la vue "code.html" en cas d'erreur
-        }
+        // Redirection vers une page de confirmation
+        return "redirect:/code";
     }
 
-
+    @PostMapping("/card/verifyPdf")
+    public String verifyPdf(@RequestParam("noCarte") String cardNumber, Model model) {
+        Carte carte = carteDao.getCarteByPin(Integer.parseInt(cardNumber));
+        if (carte != null) {
+            // Carte valide, rediriger vers la page gab.html
+            return "redirect:/gab";
+        } else {
+            // Carte invalide, ajouter un attribut d'erreur et rediriger vers la page code
+            model.addAttribute("error", true);
+            return "code";
+        }
+    }
 }
-
-

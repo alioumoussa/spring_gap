@@ -62,52 +62,33 @@ public class GabController {
         }
     }
 
-    @PostMapping("withdrow")
-    String withdrow(String compteId, String montant, String noCarte, Model model) {
 
-        // Récupérer la date actuelle
-        Date date = new Date();
+    @GetMapping("ticket")
+    String printTicket(Model model) {
+        // Ajoutez les attributs nécessaires pour l'impression du ticket
+        return "WEB-INF/ticket";
+    }
 
-        // Récupérer le timestamp actuel
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-        // Ajouter la date et le timestamp au modèle
-        model.addAttribute("date", date);
-        model.addAttribute("timestamp", timestamp);
-
+    @PostMapping("withdraw")
+    String withdraw(String compteId, String montant, String noCarte, Model model) {
+        // Récupérer le compte et effectuer le retrait
         Compte cmpt = comteRepo.getById(Integer.parseInt(compteId));
+        Double montant2 = Double.parseDouble(montant);
 
-        // Vérifiez si la chaîne de montant n'est pas vide avant de la convertir en double
-        if (montant != null && !montant.isEmpty()) {
-            try {
-                Double montant2 = Double.parseDouble(montant);
+        // Vérifier si le solde est suffisant pour le retrait
+        if (cmpt != null && cmpt.getSolde() >= montant2) {
+            cmpt.setSolde(cmpt.getSolde() - montant2);
+            comteRepo.save(cmpt);
 
-                if (cmpt != null) {
-                    if (cmpt.getSolde() >= montant2) {
-                        cmpt.setSolde(cmpt.getSolde() - montant2);
-                        comteRepo.save(cmpt);
-                        Carte crt = repository.getCartByPin(Integer.parseInt(noCarte));
+            // Ajouter les attributs nécessaires pour l'impression du ticket
+            model.addAttribute("carte", repository.getCartByPin(Integer.parseInt(noCarte)));
+            model.addAttribute("user", cmpt.getUser());
+            model.addAttribute("compte", cmpt);
+            model.addAttribute("montant", montant2);
 
-                        model.addAttribute("montant", montant2);
-
-                        model.addAttribute("carte", crt);
-                        model.addAttribute("user", cmpt.getUser());
-                        model.addAttribute("compte", cmpt);
-                        return "WEB-INF/tiket"; // Rediriger vers la page ticket.html après le retrait
-                    }
-                    return "WEB-INF/gab";
-                } else {
-                    model.addAttribute("error", "true");
-                    return "WEB-INF/code";
-                }
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                // Traitez le cas où la chaîne ne peut pas être convertie en double
-                // Peut-être ajouter un message d'erreur à l'utilisateur ou effectuer une autre action appropriée
-                return "WEB-INF/error"; // ou une autre page d'erreur
-            }
+            return "redirect:/atm/ticket"; // Rediriger vers la page ticket.html après le retrait
         } else {
-            // Traitez le cas où la chaîne de montant est vide
+            // Gérer le cas où le solde est insuffisant
             model.addAttribute("error", "true");
             return "WEB-INF/code";
         }

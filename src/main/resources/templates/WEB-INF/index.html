@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Text Extraction</title>
+
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-    <title>ATM Card Insert</title>
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -52,11 +53,20 @@
             color: #333;
         }
 
-        /* Style pour l'image GAB */
         .gab-image {
             margin-bottom: 20px;
-            max-width:400%;
+            max-width: 500%;
             height: auto;
+        }
+
+        #found {
+            display: block;
+            margin: 10px auto;
+            width: 80%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -65,94 +75,79 @@
 
 <div class="atm-container">
     <div class="atm-screen">
-        <!-- Ajout de l'image GAB -->
-        <img  th:src="@{/web/images/image_gab.jpeg}" alt="Image GAB" class="gab-image">
-
+        <img src="/web/images/image_gab.jpeg" alt="Image GAB" class="gab-image">
         <h3>Bienvenue dans notre distributeur automatique de billets (ATM).</h3>
-        <h4>Veuillez Inserer votre carte bancaire ou entrez le code PIN manuellement
-            <a th:href="@{/atm/code}" >ici</a></h4>
+        <h4>Veuillez télécharger votre carte bancaire au format PDF ou entrez le code PIN manuellement <a
+                href="/atm/code">ici</a></h4>
 
         <input type="file" class="card-slot" id="fileInput" accept=".pdf" onchange="extractText()">
         <div id="resultContainer"></div>
-        <input type="hidden" id="found" name="noCarte">
-
+        <input type="text" id="found" name="noCarte">
     </div>
 </div>
 
-<script>
+    <script>
     function extractText() {
-             const fileInput = document.getElementById('fileInput');
-             const file = fileInput.files[0];
-             const resultContainer = document.getElementById('resultContainer');
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        const resultContainer = document.getElementById('resultContainer');
 
-             if (file) {
-                 const reader = new FileReader();
-                 reader.onload = function (e) {
-                     const arrayBuffer = e.target.result;
+        if (file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
 
-                     // Load PDF document
-                     pdfjsLib.getDocument({ data: arrayBuffer }).promise.then(function (pdfDoc) {
-                         let occurrences = [];
+            reader.onload = function (e) {
+                const arrayBuffer = e.target.result;
 
-                         // Define the regular expression pattern
-                         const regex = /Pin:([0-9]{4})/g;
+                // Convert array buffer to text using TextDecoder
+                const textDecoder = new TextDecoder();
+                const text = textDecoder.decode(arrayBuffer);
 
-                         // Iterate through each page
-                         for (let pageNumber = 1; pageNumber <= pdfDoc.numPages; pageNumber++) {
-                             pdfDoc.getPage(pageNumber).then(function (page) {
-                                 // Extract text from the page
-                                 page.getTextContent().then(function (textContent) {
-                                     const textItems = textContent.items;
+                // Extract PIN using regex
+                const regex = /Pin:([0-9]{4})/g;
+                const matches = text.match(regex);
 
-                                     // Check each text item for the pattern
-                                     for (let i = 0; i < textItems.length; i++) {
-                                         const text = textItems[i].str;
+                if (matches && matches.length > 0) {
+                    const pin = matches[0].replace('Pin:', '');
+                    document.getElementById('found').value = pin;
 
-                                         // Use regular expression to find the pattern
-                                         let match = regex.exec(text);
-                                         while (match !== null) {
-                                             occurrences.push({ page: pageNumber, pin: match[1] });
-                                             match = regex.exec(text);
-                                         }
-                                     }
+                    // Redirect to Spring controller with PIN as parameter
+                    window.location.href = "/cardUpload?noCarte=" + pin;
+                } else {
+                    resultContainer.textContent = 'Pin not found in the PDF.';
+                }
+            };
+        } else {
+            alert('Please select a PDF file.');
+        }
+    }
 
-                                     // Display results after processing the last page
-                                     if (pageNumber === pdfDoc.numPages) {
-                                         displayResults(occurrences);
-                                     }
-                                 });
-                             });
-                         }
-                     });
-                 };
+function displayResults(occurrences) {
+    const resultContainer = document.getElementById('resultContainer');
+    resultContainer.innerHTML = '';
 
-                 reader.readAsArrayBuffer(file);
-             } else {
-                 alert('Please select a PDF file.');
-             }
-         }
+    if (occurrences.length > 0) {
+        for (let i = 0; i < occurrences.length; i++) {
+            const result = document.createElement('p');
+            result.textContent = `Pin found on page ${occurrences[i].page}: ${occurrences[i].pin}`;
+            resultContainer.appendChild(result);
+            document.getElementById("found").value=`${occurrences[i].pin}`;
+            localStorage.setItem('pin', document.getElementById("found").value);
 
-         function displayResults(occurrences) {
-             const resultContainer = document.getElementById('resultContainer');
-             resultContainer.innerHTML = '';
+            // Redirection vers le contrôleur Spring
+            window.location.href = "/cardUpload?noCarte=" + document.getElementById("found").value;
+            localStorage.removeItem('pin');
+        }
+    } else {
+        resultContainer.textContent = 'Pin not found in the PDF.';
+    }
+}
 
-             if (occurrences.length > 0) {
-                 for (let i = 0; i < occurrences.length; i++) {
-                     const result = document.createElement('p');
-                     result.textContent = `Pin found on page ${occurrences[i].page}: ${occurrences[i].pin}`;
-                     document.getElementById("found").value=`${occurrences[i].pin}`
-                          localStorage.setItem('pin', document.getElementById("found").value);
-                     resultContainer.appendChild(result);
-                         //document.location.href="code.jsp"
-                     document.location.href="cardServelet?action=pdfUpload&&noCarte="+document.getElementById("found").value
-                     localStorage.removeItem('pin');
-                 }
-             } else {
-                 resultContainer.textContent = 'Pin not found in the PDF.';
-             }
-         }
 
 </script>
+
+<script th:src="@{/web/js/ATM4.js}"></script>
+
 </body>
 
 </html>

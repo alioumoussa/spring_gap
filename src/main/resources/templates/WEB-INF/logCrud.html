@@ -47,14 +47,12 @@
 							<tr>
 								<th>logg id</th>
 								<th>information</th>
-								<th>email</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr th:each="logs : ${alllog}">
-								<td th:text="${log.id}">firstName</td>
-								<td th:text="${log.logg}">lastName</td>
-								<td th:text="${log.email}">email</td>
+								<td th:text="${logs.id}">firstName</td>
+								<td th:text="${logs.logg}">lastName</td>
 							</tr>
 
 						</tbody>

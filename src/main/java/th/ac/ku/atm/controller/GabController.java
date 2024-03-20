@@ -1,6 +1,8 @@
 package th.ac.ku.atm.controller;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -74,19 +76,27 @@ public class GabController {
         // Récupérer le compte et effectuer le retrait
         Compte cmpt = comteRepo.getById(Integer.parseInt(compteId));
         Double montant2 = Double.parseDouble(montant);
-
+System.out.println(compteId+" deidine "+montant+" "+noCarte);
         // Vérifier si le solde est suffisant pour le retrait
         if (cmpt != null && cmpt.getSolde() >= montant2) {
             cmpt.setSolde(cmpt.getSolde() - montant2);
             comteRepo.save(cmpt);
 
+String date = new SimpleDateFormat("yyyy/MM/dd").format(Calendar.getInstance().getTime());
+String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+
             // Ajouter les attributs nécessaires pour l'impression du ticket
             model.addAttribute("carte", repository.getCartByPin(Integer.parseInt(noCarte)));
             model.addAttribute("user", cmpt.getUser());
             model.addAttribute("compte", cmpt);
+            model.addAttribute("date", date);
+            model.addAttribute("timeStamp", timeStamp);
             model.addAttribute("montant", montant2);
-
-            return "redirect:/atm/ticket"; // Rediriger vers la page ticket.html après le retrait
+// User u=cmpt.getUser();
+// u.getFirstName()
+// u.getLastName()
+// cmpt.getSolde()
+            return "WEB-INF/ticket"; // Rediriger vers la page ticket.html après le retrait
         } else {
             // Gérer le cas où le solde est insuffisant
             model.addAttribute("error", "true");

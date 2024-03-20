@@ -69,10 +69,12 @@
 <body>
 
 <input type="hidden" id="solde" th:value="${compte.getSolde()}">
+
+
 <table class="clsstable" border="2px" width="800px" height="500px">
 	<tbody>
 	<tr>
-		<td colspan="4" >
+		<td colspan="4">
 			<div id="withdrawOptions" style="display: none;">
 				<p>Choisissez le montant et le nombre de billets à retirer :</p>
 				<div>
@@ -81,15 +83,19 @@
 					<img src="/web/images/1000.jpeg" alt="Billet 1000" onclick="selectBill(1000)" class="bill-image">
 					<img src="/web/images/100.jpeg" alt="Billet 100" onclick="selectBill(100)" class="bill-image">
 					<img src="/web/images/50.jpg" alt="Billet 50" onclick="selectBill(50)" class="bill-image">
-					<img src="/web/images/20.jpeg" alt="Billet 20" onclick="selectBill(20)" class="bill-image">
 				</div>
 				<input type="number" id="billCount" placeholder="Nombre de billets">
 				<button onclick="withdrawMoney()">Valider</button>
 			</div>
+			<div id="selectedBillsDisplay" style="display: none;">
+				<p>Billets sélectionnés :</p>
+				<div id="selectedBillsText"></div>
+				<p id="totalAmount"></p>
+			</div>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2" rowspan="2" id="bal">
+		<td colspan="3" rowspan="2" id="bal">
 			<div>
 				<p id="userBalance">BIENVENUE SUR VOTRE COMPTE</p>
 				<p id="userDetails"></p>
@@ -103,7 +109,8 @@
 
 	<tr>
 		<td><button class="clssbutton" type="button" data-toggle="modal" data-target="#exampleModal">Afficher Détail</button></td>
-		<td><button class="clssbutton" onclick="cancel()">Annuler</button></td>
+		<td><button class="clssbutton" onclick="cancelWithdrawal()">Annuler</button></td>
+
 	</tr>
 	<tr>
 		<td></td>
@@ -116,7 +123,7 @@
 		<td>
 			<input type="hidden" name="noCarte" th:value="${carte.getPin()}">
 			<input type="hidden" name="compteId" th:value="${compte.getId()}">
-			<button class="clssbutton" name="action" value="retraitFromCln" type="submit">Valider</button>
+			<button class="clssbutton" name="action" type="text">Transfert</button>
 		</td>
 		<td>
 			<button class="clssbutton" id="end">
@@ -154,12 +161,15 @@
 	</div>
 </div>
 
+
 <script type="text/javascript">
 	var solde = document.getElementById('solde');
-    var disp = "Votre solde est de : ";
     var userBalance = document.getElementById('userBalance');
     var userDetails = document.getElementById('userDetails');
     var userInput = document.getElementById('userInput');
+    var selectedBill = 0;
+    var selectedBills = {}; // Objet pour stocker les billets sélectionnés et leurs quantités
+
 
     function turnOn() {
         userBalance.innerText = "Votre solde est de : " + solde.value;
@@ -170,70 +180,104 @@
         return Math.floor(withdrawAmount / billValue);
     }
 
-    function withdrawMoney() {
-        var withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
-        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-            alert("Veuillez saisir un montant valide à retirer.");
-            return;
+    function updateSelectedBillsDisplay() {
+        var selectedBillsText = "";
+        var totalAmount = 0;
+        for (var bill in selectedBills) {
+            selectedBillsText += selectedBills[bill] + " billet(s) de " + bill + " ";
+            totalAmount += selectedBills[bill] * parseInt(bill);
         }
-
-        var billCount = parseInt(document.getElementById('billCount').value);
-        var totalAmount = selectedBill * billCount;
-
-        if (isNaN(totalAmount) || totalAmount <= 0) {
-            alert("Veuillez sélectionner un montant valide à retirer.");
-            return;
-        }
-
-        if (withdrawAmount > totalAmount) {
-            alert("Le montant à retirer dépasse le montant disponible.");
-            return;
-        }
-
-        // Ajoutez ici la logique pour imprimer le ticket
-        var ticketContent = "Montant retiré : " + withdrawAmount.toFixed(2) + "\n";
-
-        // Mettez à jour le solde initial de l'utilisateur en retirant le montant
-        var soldeInitial = parseFloat(document.getElementById('solde').value);
-        var nouveauSolde = soldeInitial - withdrawAmount;
-        document.getElementById('solde').value = nouveauSolde.toFixed(2);
-
-        // Ajoutez ici la logique pour enregistrer le retrait et mettre à jour le solde dans votre système
-
-        // Affichez un message de confirmation à l'utilisateur
-        alert("Retrait effectué avec succès !\nMontant retiré : " + withdrawAmount.toFixed(2) + "\nNouveau solde : " + nouveauSolde.toFixed(2));
-
-
-
-        // Réinitialisez les champs et masquez les options de retrait
-        selectedBill = 0;
-        document.getElementById('withdrawAmount').value = "";
-        document.getElementById('billCount').value = "";
-        document.getElementById('withdrawOptions').style.display = 'none';
+        userDetails.innerText = selectedBillsText + " Total : " + totalAmount;
     }
 
-    function cancel() {
-        userBalance.innerText = ""; // Efface le message de solde
-        userDetails.innerText = ""; // Efface le message de retrait
-        userInput.value = ""; // Vide le champ de saisie de montant
+function withdrawMoney() {
+    var withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
+    if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+        alert("Veuillez saisir un montant valide à retirer.");
+        return;
     }
+
+    var billCount = parseInt(document.getElementById('billCount').value);
+    if (isNaN(billCount) || billCount <= 0) {
+        alert("Veuillez saisir un nombre de billets valide.");
+        return;
+    }
+
+    var totalBillsSelected = 0;
+    for (var bill in selectedBills) {
+        totalBillsSelected += selectedBills[bill];
+    }
+
+    if (totalBillsSelected !== billCount) {
+        alert("Le nombre de billets sélectionnés ne correspond pas au nombre de billets valide.");
+        return;
+    }
+
+    var totalAmount = 0;
+    for (var bill in selectedBills) {
+        totalAmount += selectedBills[bill] * parseInt(bill);
+    }
+
+    if (totalAmount !== withdrawAmount) {
+        alert("Le montant à retirer ne correspond pas au total des billets sélectionnés.");
+        return;
+    }
+
+    // Ajoutez ici la logique pour imprimer le ticket
+    var ticketContent = "Montant retiré : " + withdrawAmount.toFixed(2) + "\n";
+
+    // Mettez à jour le solde initial de l'utilisateur en retirant le montant
+    var soldeInitial = parseFloat(document.getElementById('solde').value);
+    var nouveauSolde = soldeInitial - withdrawAmount;
+    solde.value = nouveauSolde.toFixed(2);
+    userBalance.innerText = "Votre solde est de : " + nouveauSolde.toFixed(2);
+
+    // Affichez le message de retrait avec le montant retiré et le solde actuel
+    userDetails.innerText = "Montant retiré : " + withdrawAmount.toFixed(2) + "\nSolde actuel : " + nouveauSolde.toFixed(2);
+
+    // Ajoutez ici la logique pour enregistrer le retrait et mettre à jour le solde dans votre système
+
+    // Affichez un message de confirmation à l'utilisateur
+    alert("Retrait effectué avec succès !\nMontant retiré : " + withdrawAmount.toFixed(2) + "\nNouveau solde : " + nouveauSolde.toFixed(2));
+
+    // Réinitialisez les champs et masquez les options de retrait
+    selectedBill = 0;
+    selectedBills = {};
+    document.getElementById('withdrawAmount').value = "";
+    document.getElementById('billCount').value = "";
+    document.getElementById('withdrawOptions').style.display = 'none';
+}
+
+function cancelWithdrawal() {
+    selectedBill = 0;
+    selectedBills = {};
+    document.getElementById('withdrawAmount').value = "";
+    document.getElementById('billCount').value = "";
+    document.getElementById('withdrawOptions').style.display = 'none';
+    userDetails.innerText = ""; //
+}
+
 
     function verify() {
         // Vous pouvez ajouter ici la logique de vérification, si nécessaire.
         return true; // Permet de soumettre le formulaire.
     }
 
-    var selectedBill = 0;
-
     function showWithdrawOptions() {
         document.getElementById('withdrawOptions').style.display = 'block';
     }
 
     function selectBill(billValue) {
-        selectedBill = billValue;
+        if (selectedBills[billValue]) {
+            selectedBills[billValue]++;
+        } else {
+            selectedBills[billValue] = 1;
+        }
+        updateSelectedBillsDisplay();
     }
 
 </script>
+
 
 </body>
 </html>

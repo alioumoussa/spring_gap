@@ -26,7 +26,7 @@ public class CardController {
 
     @PostMapping("/card/verifyPdf")
     public String verifyPdf(@RequestParam("noCarte") String cardNumber, Model model) {
-        Carte carte = carteDao.getCarteByPin(Integer.parseInt(cardNumber));
+        Carte carte = carteDao.getCarteByPin(cardNumber);
         if (carte != null) {
             // Carte valide, rediriger vers la page gab.html
             return "redirect:/gab";

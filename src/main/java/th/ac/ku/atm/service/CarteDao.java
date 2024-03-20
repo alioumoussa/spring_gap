@@ -41,7 +41,7 @@ public class CarteDao {
 		return carte;
 	}
 
-	public boolean verfiPin(int pin) {
+	public boolean verfiPin(String pin) {
 		Carte crt = getCarteByPin(pin);
 		if (crt == null) {
 			return false;
@@ -50,7 +50,7 @@ public class CarteDao {
 		}
 	}
 
-	public Carte getCarteByPin(int pin) {
+	public Carte getCarteByPin(String pin) {
 
 		try {
 			Carte carte = repository.getCartByPin(pin);

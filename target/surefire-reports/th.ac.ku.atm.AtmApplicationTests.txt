@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: th.ac.ku.atm.AtmApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 256.196 s - in th.ac.ku.atm.AtmApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 188.299 s - in th.ac.ku.atm.AtmApplicationTests

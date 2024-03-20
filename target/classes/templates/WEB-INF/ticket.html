@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* Votre CSS ici */
+    </style>
+    <!-- Ajoutez la balise de lien pour charger la police -->
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700" rel="stylesheet">
+</head>
+<body onload="imprimer();">
+<main class="ticket-system">
+    <div class="top">
+        <h1 class="title">Attendez trois seconde, votre billet est en cours d'impression</h1>
+        <!-- Correction de la balise printer -->
+        <div class="printer"></div>
+    </div>
+    <div class="receipts-wrapper">
+        <div class="receipts">
+            <div class="receipt">
+                <div class="route">
+                    <h2>Nom: <span th:text="${user.firstName + ' ' + user.lastName}"></span></h2>
+                </div>
+                <div class="details">
+                    <div class="item">
+                        <span>Montant Retirer </span>
+                        <h3 th:text="${montant}"></h3>
+                    </div>
+                    <div class="item">
+                        <span>Votre Solde Restant</span>
+                        <h3 th:text="${compte.solde}"></h3>
+                    </div>
+                    <div class="item">
+                        <span>Date </span>
+                        <h3 th:text="${date}"></h3>
+                    </div>
+                    <div class="item">
+                        <span>Temps</span>
+                        <h3 th:text="${timestamp}"></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+
+       function imprimer() {
+           setTimeout(() => {
+               window.print();
+           }, 4000); // Imprime le ticket après 4 secondes (4000 ms)
+       }
+
+       // Appeler la fonction d'impression lorsque la page est chargée
+       window.onload = imprimer;
+</script>
+</body>
+</html>

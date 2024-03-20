@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+	<script th:src="@{/web/js/ATM4.js}"></script>
+	<script th:src="@{/web/js/pdf.js}"></script>
+
+	<style>
+		/* Votre CSS ici */
+        .clsstable {
+            margin: 20vh auto;
+            background-image: linear-gradient(45deg, #4CAF50, #2196F3);
+            border: thick solid #1e5799;
+            text-align: center;
+            font-size: x-large;
+        }
+
+        .clssbutton {
+            width: 15vh;
+            cursor: pointer;
+            height: 10vh;
+            font-size: 0.8em;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .clssbutton:hover {
+            background-color: #45a049;
+        }
+
+        .clssinput {
+            width: 50vh;
+            height: 10vh;
+            font-weight: bold;
+            font-size: 2em;
+            text-align: center;
+            border: thick solid #1e5799;
+            border-radius: 5px;
+        }
+
+        #bal {
+            border: blue 30px groove;
+        }
+
+        #end a {
+            color: black;
+            text-decoration: none;
+        }
+
+        .bill-image {
+            width: 200px; /* Ajustez la largeur selon vos besoins */
+            height: auto; /* La hauteur s'ajustera automatiquement pour conserver les proportions */
+        }
+	</style>
+</head>
+<body>
+
+<input type="hidden" id="solde" th:value="${compte.getSolde()}">
+
+
+<table class="clsstable" border="2px" width="800px" height="500px">
+	<tbody>
+	<tr>
+		<td colspan="4">
+			<div id="withdrawOptions" style="display: none;">
+				<p>Choisissez le montant et le nombre de billets à retirer :</p>
+				<div>
+					<img src="/web/images/200.png" alt="Billet 200" onclick="selectBill(200)" class="bill-image">
+					<img src="/web/images/500.jpg" alt="Billet 500" onclick="selectBill(500)" class="bill-image">
+					<img src="/web/images/1000.jpeg" alt="Billet 1000" onclick="selectBill(1000)" class="bill-image">
+					<img src="/web/images/100.jpeg" alt="Billet 100" onclick="selectBill(100)" class="bill-image">
+					<img src="/web/images/50.jpg" alt="Billet 50" onclick="selectBill(50)" class="bill-image">
+				</div>
+				<input type="number" id="billCount" placeholder="Nombre de billets">
+				<button onclick="withdrawMoney()">Valider</button>
+			</div>
+			<div id="selectedBillsDisplay" style="display: none;">
+				<p>Billets sélectionnés :</p>
+				<div id="selectedBillsText"></div>
+				<p id="totalAmount"></p>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3" rowspan="2" id="bal">
+			<div>
+				<p id="userBalance">BIENVENUE SUR VOTRE COMPTE</p>
+				<p id="userDetails"></p>
+			</div>
+		</td>
+		<td><button class="clssbutton" onclick="turnOn()">Vérifier le solde</button></td>
+		<td>
+			<button class="clssbutton" onclick="showWithdrawOptions()">Retirer</button>
+		</td>
+	</tr>
+
+	<tr>
+		<td><button class="clssbutton" type="button" data-toggle="modal" data-target="#exampleModal">Afficher Détail</button></td>
+		<td><button class="clssbutton" onclick="cancelWithdrawal()">Annuler</button></td>
+
+	</tr>
+	<tr>
+		<td></td>
+		<td colspan="2" rowspan="2">
+			<input type="number" class="clssinput" id="withdrawAmount" placeholder="00,000:00">
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>
+			<input type="hidden" name="noCarte" th:value="${carte.getPin()}">
+			<input type="hidden" name="compteId" th:value="${compte.getId()}">
+			<button class="clssbutton" name="action" type="text">Transfert</button>
+		</td>
+		<td>
+			<button class="clssbutton" id="end">
+				<a th:href="@{/atm/code}" style="color: white;">Deconnecter</a>
+			</button>
+		</td>
+	</tr>
+	</tbody>
+
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Vos Informations</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<b>Nom Prénom: <span th:text="${user.getFirstName()}"></span> / <span th:text="${user.getLastName()}"></span></b><br>
+				<b>Numéro de téléphone : <span th:text="${user.getPhone()}"></span></b><br>
+				<b>Email : <span th:text="${user.getEmail()}"></span></b><br>
+				<b>Le PIN de votre carte : <span th:text="${carte.getPin()}"></span></b><br>
+				<b>Type du compte : <span th:text="${compte.getType_compte()}"></span></b><br>
+				<b>Date d'expiration de votre carte :<span th:text="${carte.getDateExpiration()}"></span></b><br>
+				<b>Numéro de votre carte :<span th:text="${carte.getNumeroCarte()}"></span></b><br>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	var solde = document.getElementById('solde');
+    var userBalance = document.getElementById('userBalance');
+    var userDetails = document.getElementById('userDetails');
+    var userInput = document.getElementById('userInput');
+    var selectedBill = 0;
+    var selectedBills = {}; // Objet pour stocker les billets sélectionnés et leurs quantités
+
+
+    function turnOn() {
+        userBalance.innerText = "Votre solde est de : " + solde.value;
+        userDetails.innerText = "";
+    }
+
+    function calculateBillCount(billValue, withdrawAmount) {
+        return Math.floor(withdrawAmount / billValue);
+    }
+
+    function updateSelectedBillsDisplay() {
+        var selectedBillsText = "";
+        var totalAmount = 0;
+        for (var bill in selectedBills) {
+            selectedBillsText += selectedBills[bill] + " billet(s) de " + bill + " ";
+            totalAmount += selectedBills[bill] * parseInt(bill);
+        }
+        userDetails.innerText = selectedBillsText + " Total : " + totalAmount;
+    }
+
+function withdrawMoney() {
+    var withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
+    if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+        alert("Veuillez saisir un montant valide à retirer.");
+        return;
+    }
+
+    var billCount = parseInt(document.getElementById('billCount').value);
+    if (isNaN(billCount) || billCount <= 0) {
+        alert("Veuillez saisir un nombre de billets valide.");
+        return;
+    }
+
+    var totalBillsSelected = 0;
+    for (var bill in selectedBills) {
+        totalBillsSelected += selectedBills[bill];
+    }
+
+    if (totalBillsSelected !== billCount) {
+        alert("Le nombre de billets sélectionnés ne correspond pas au nombre de billets valide.");
+        return;
+    }
+
+    var totalAmount = 0;
+    for (var bill in selectedBills) {
+        totalAmount += selectedBills[bill] * parseInt(bill);
+    }
+
+    if (totalAmount !== withdrawAmount) {
+        alert("Le montant à retirer ne correspond pas au total des billets sélectionnés.");
+        return;
+    }
+
+    // Ajoutez ici la logique pour imprimer le ticket
+    var ticketContent = "Montant retiré : " + withdrawAmount.toFixed(2) + "\n";
+
+    // Mettez à jour le solde initial de l'utilisateur en retirant le montant
+    var soldeInitial = parseFloat(document.getElementById('solde').value);
+    var nouveauSolde = soldeInitial - withdrawAmount;
+    solde.value = nouveauSolde.toFixed(2);
+    userBalance.innerText = "Votre solde est de : " + nouveauSolde.toFixed(2);
+
+    // Affichez le message de retrait avec le montant retiré et le solde actuel
+    userDetails.innerText = "Montant retiré : " + withdrawAmount.toFixed(2) + "\nSolde actuel : " + nouveauSolde.toFixed(2);
+
+    // Ajoutez ici la logique pour enregistrer le retrait et mettre à jour le solde dans votre système
+
+    // Affichez un message de confirmation à l'utilisateur
+    alert("Retrait effectué avec succès !\nMontant retiré : " + withdrawAmount.toFixed(2) + "\nNouveau solde : " + nouveauSolde.toFixed(2));
+
+    // Réinitialisez les champs et masquez les options de retrait
+    selectedBill = 0;
+    selectedBills = {};
+    document.getElementById('withdrawAmount').value = "";
+    document.getElementById('billCount').value = "";
+    document.getElementById('withdrawOptions').style.display = 'none';
+}
+
+function cancelWithdrawal() {
+    selectedBill = 0;
+    selectedBills = {};
+    document.getElementById('withdrawAmount').value = "";
+    document.getElementById('billCount').value = "";
+    document.getElementById('withdrawOptions').style.display = 'none';
+    userDetails.innerText = ""; //
+}
+
+
+    function verify() {
+        // Vous pouvez ajouter ici la logique de vérification, si nécessaire.
+        return true; // Permet de soumettre le formulaire.
+    }
+
+    function showWithdrawOptions() {
+        document.getElementById('withdrawOptions').style.display = 'block';
+    }
+
+    function selectBill(billValue) {
+        if (selectedBills[billValue]) {
+            selectedBills[billValue]++;
+        } else {
+            selectedBills[billValue] = 1;
+        }
+        updateSelectedBillsDisplay();
+    }
+
+</script>
+
+
+</body>
+</html>
